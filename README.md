@@ -150,40 +150,40 @@ slider-app/
 ## Roadmap
 
 ### Phase 1 — Canvas Annotation UI
-- [ ] HTML5 Canvas: draw bounding boxes with mouse drag
-- [ ] Select, move, resize, delete boxes
-- [ ] Class label picker (dropdown per box)
-- [ ] Per-class color coding
-- [ ] Image navigation (prev/next, thumbnail strip)
+- [x] HTML5 Canvas: draw bounding boxes with mouse drag
+- [x] Select, move, resize, delete boxes
+- [x] Class label picker (dropdown per box)
+- [x] Per-class color coding
+- [x] Image navigation (prev/next, thumbnail strip)
 
 ### Phase 2 — FastAPI Backend + YOLOv8 Inference
-- [ ] `/infer` endpoint: accept image → return boxes + labels + scores
-- [ ] YOLOv8 pretrained COCO weights (80 classes)
-- [ ] Response format: `[{x, y, w, h, class, confidence}]`
-- [ ] Support: JPG, PNG, WebP
-- [ ] Batch inference endpoint for folder uploads
+- [x] `/infer` endpoint: accept image → return boxes + labels + scores
+- [x] YOLOv8 pretrained COCO weights (80 classes)
+- [x] Response format: `[{x, y, w, h, class, confidence}]`
+- [x] Support: JPG, PNG, WebP
+- [x] Batch inference endpoint for folder uploads
 
 ### Phase 3 — Confidence Threshold + IoU Sliders
-- [ ] Confidence slider: filter displayed boxes in real-time (React state)
-- [ ] IoU slider: client-side NMS to suppress overlapping boxes
-- [ ] Class visibility toggles
-- [ ] "Accept all above threshold" button
-- [ ] Undo/redo stack for box edits
+- [x] Confidence slider: filter displayed boxes in real-time (React state)
+- [x] IoU slider: client-side NMS to suppress overlapping boxes
+- [x] Class visibility toggles
+- [x] "Accept all above threshold" button
+- [x] Undo/redo stack for box edits
 
 ### Phase 4 — Export Pipeline
-- [ ] YOLO `.txt` export (normalized `class cx cy w h` format)
-- [ ] COCO JSON export (full annotation schema)
-- [ ] Pascal VOC XML export
-- [ ] ZIP download of all annotations + images
-- [ ] Split options: train/val/test (70/20/10)
+- [x] YOLO `.txt` export (normalized `class cx cy w h` format)
+- [x] COCO JSON export (full annotation schema)
+- [x] Pascal VOC XML export
+- [x] ZIP download of all annotations + images
+- [x] Split options: train/val/test (70/20/10)
 
 ### Phase 5 — Dataset Stats Dashboard + Batch Upload
-- [ ] Class distribution bar chart
-- [ ] Annotated vs pending image counter
-- [ ] Images per class table
-- [ ] Drag-and-drop folder upload
-- [ ] Progress bar for batch inference
-- [ ] Custom class list (upload your own instead of COCO defaults)
+- [x] Class distribution bar chart
+- [x] Annotated vs pending image counter
+- [x] Images per class table
+- [x] Drag-and-drop folder upload
+- [x] Progress bar for batch inference
+- [x] Custom class list (upload your own instead of COCO defaults)
 
 ---
 
