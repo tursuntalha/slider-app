@@ -1,69 +1,110 @@
-# Slider App — React Slider & Carousel Component Library
+# AnnotateAI — AI-Assisted Image Annotation Tool
 
 ![Status](https://img.shields.io/badge/Status-In%20Development-yellow?style=for-the-badge)
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![CSS Modules](https://img.shields.io/badge/CSS%20Modules-1572B6?style=for-the-badge&logo=css3&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![YOLOv8](https://img.shields.io/badge/YOLOv8-FF6B35?style=for-the-badge&logoColor=white)
 
-A lightweight, customizable React carousel and slider component library with smooth animations, touch/swipe support, and zero external dependencies.
+> **"Veri etiketlemeyi AI'ye bırak, sen kontrol et."**
+
+A browser-based image annotation tool that uses YOLOv8 to automatically suggest bounding boxes and class labels. You adjust, confirm, and export — dramatically cutting the time needed to build a labeled dataset for custom computer vision models.
 
 ---
 
-## Planned Components
+## The Problem
 
-### `<ImageCarousel />`
-Auto-playing image carousel with navigation arrows, dot indicators, and infinite loop.
+Every custom computer vision project hits the same wall: you need thousands of labeled images before training can even begin. Manual bounding box annotation is slow (2–5 minutes per image), inconsistent across annotators, and mind-numbing at scale. Existing open-source tools (LabelImg, CVAT) are desktop-only and have no AI assistance built in.
 
-```jsx
-<ImageCarousel
-  images={['/img1.jpg', '/img2.jpg', '/img3.jpg']}
-  autoPlay
-  interval={3000}
-  showDots
-  showArrows
-  infinite
-/>
+**AnnotateAI solves this by making the AI do the first pass — you just review and correct.**
+
+---
+
+## How It Works
+
+```
+Upload Image(s)
+      │
+      ▼
+┌──────────────────────────────┐
+│  FastAPI Backend             │
+│  YOLOv8 Inference            │
+│  → bounding boxes            │
+│  → class labels              │
+│  → confidence scores         │
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│  Confidence Threshold Slider │  Hide boxes below X% confidence
+│  IoU Slider                  │  Remove overlapping duplicates
+│  Class Filter                │  Show/hide specific classes
+└──────────────┬───────────────┘
+               │
+               ▼
+┌──────────────────────────────┐
+│  React Canvas Annotation UI  │
+│  → accept / reject boxes     │
+│  → draw new boxes            │
+│  → reassign class labels     │
+└──────────────┬───────────────┘
+               │
+               ▼
+         Export Dataset
+   YOLO .txt | COCO JSON | VOC XML
 ```
 
-### `<ContentSlider />`
-Accepts any React children as slides — cards, text, custom components.
+---
 
-```jsx
-<ContentSlider slidesPerView={3} gap={16}>
-  <Card title="Item 1" />
-  <Card title="Item 2" />
-  <Card title="Item 3" />
-  <Card title="Item 4" />
-</ContentSlider>
-```
+## The Sliders
 
-### `<RangeSlider />`
-Single and dual-handle range input with custom styling and value labels.
+The "slider" in AnnotateAI isn't a carousel — it's the core UX paradigm:
 
-```jsx
-<RangeSlider
-  min={0}
-  max={1000}
-  value={[200, 800]}
-  onChange={([min, max]) => setPrice([min, max])}
-  label="Price Range"
-/>
-```
+| Slider | Range | Effect |
+|--------|-------|--------|
+| **Confidence Threshold** | 0–100% | Hide AI boxes below this confidence — only show high-certainty suggestions |
+| **IoU Threshold** | 0–1.0 | Suppress overlapping boxes (Non-Maximum Suppression strength) |
+| **Class Probability** | Per class | Show/hide all boxes of a specific class |
 
-### `<TestimonialSlider />`
-Card-based testimonial display with auto-scroll and smooth transitions.
+This lets you say: "Only show me boxes where the AI is >70% confident, and suppress overlapping boxes with IoU>0.5."
+
+---
+
+## Export Formats
+
+| Format | File Type | Use Case |
+|--------|-----------|---------|
+| **YOLO** | `.txt` per image | Train with Ultralytics YOLOv8/v5 |
+| **COCO** | Single `annotations.json` | MMDetection, Detectron2, COCO eval |
+| **Pascal VOC** | `.xml` per image | TensorFlow Object Detection API |
 
 ---
 
 ## Features
 
-- Touch and swipe support (mobile-friendly)
-- Keyboard navigation (arrow keys)
-- Responsive breakpoints — configure `slidesPerView` per breakpoint
-- Custom animation easing (ease-in-out, spring, linear)
-- Zero external dependencies (pure React + CSS)
-- Full TypeScript support
-- Tree-shakeable — import only what you use
+- Upload images or entire folders (drag-and-drop)
+- YOLOv8 auto-annotation: bounding boxes + class labels + confidence scores
+- Confidence, IoU, and class sliders for filtering AI suggestions
+- Draw custom bounding boxes on HTML5 Canvas
+- Multi-class labeling with per-class color coding
+- Accept / reject individual AI-suggested boxes
+- Dataset statistics panel: class distribution bar chart, total annotations, annotated/pending count
+- Keyboard shortcuts: `A`/`D` navigate images, `Delete` removes selected box, `Enter` accepts all
+- Export to YOLO, COCO, or Pascal VOC with one click
+
+---
+
+## Architecture
+
+```
+┌──────────────────────┐       ┌──────────────────────┐
+│  React Frontend      │       │  FastAPI Backend      │
+│  TypeScript          │◄─────►│  Python 3.11          │
+│  HTML5 Canvas        │  REST │  YOLOv8 (Ultralytics) │
+│  Tailwind CSS        │       │  Uvicorn              │
+└──────────────────────┘       └──────────────────────┘
+```
 
 ---
 
@@ -71,35 +112,97 @@ Card-based testimonial display with auto-scroll and smooth transitions.
 
 | Layer | Technology |
 |-------|-----------|
-| Framework | React 18 + TypeScript |
-| Styling | CSS Modules (no Styled Components, no Emotion) |
-| Build | Rollup → ESM + CJS + UMD |
-| Testing | React Testing Library + Jest |
-| Demo | Storybook |
+| Frontend | React 18, TypeScript, HTML5 Canvas API, Tailwind CSS |
+| Backend | FastAPI (Python), Uvicorn |
+| AI Model | Ultralytics YOLOv8 (pretrained COCO weights) |
+| Communication | REST API (multipart image upload) |
 
 ---
 
-## Installation (planned)
+## Project Structure
 
-```bash
-npm install slider-app
-# or
-yarn add slider-app
+```
+slider-app/
+├── frontend/
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Canvas.tsx        # Bounding box drawing + interaction
+│   │   │   ├── SliderPanel.tsx   # Confidence, IoU, class sliders
+│   │   │   ├── ClassLegend.tsx   # Color-coded class list
+│   │   │   └── ExportButton.tsx  # Format selector + download
+│   │   ├── hooks/
+│   │   │   └── useAnnotation.ts  # Annotation state management
+│   │   └── services/
+│   │       └── api.ts            # FastAPI client
+├── backend/
+│   ├── main.py                   # FastAPI app + /infer endpoint
+│   ├── yolo_inference.py         # YOLOv8 inference wrapper
+│   ├── export/
+│   │   ├── yolo.py               # YOLO format exporter
+│   │   ├── coco.py               # COCO JSON exporter
+│   │   └── voc.py                # Pascal VOC XML exporter
+│   └── requirements.txt
+└── README.md
 ```
 
 ---
 
 ## Roadmap
 
-| Phase | Task | Status |
-|-------|------|--------|
-| Phase 1 | `<ImageCarousel>` — arrows, dots, autoplay, infinite | [ ] |
-| Phase 2 | Touch/swipe gesture detection | [ ] |
-| Phase 3 | `<ContentSlider>` — multi-slide, responsive breakpoints | [ ] |
-| Phase 4 | `<RangeSlider>` — single + dual handle | [ ] |
-| Phase 5 | `<TestimonialSlider>` — card layout + auto-scroll | [ ] |
-| Phase 6 | Keyboard navigation + accessibility (ARIA) | [ ] |
-| Phase 7 | TypeScript definitions | [ ] |
-| Phase 8 | Storybook documentation | [ ] |
-| Phase 9 | Rollup build + npm publish | [ ] |
-| Phase 10 | Demo site (GitHub Pages) | [ ] |
+### Phase 1 — Canvas Annotation UI
+- [ ] HTML5 Canvas: draw bounding boxes with mouse drag
+- [ ] Select, move, resize, delete boxes
+- [ ] Class label picker (dropdown per box)
+- [ ] Per-class color coding
+- [ ] Image navigation (prev/next, thumbnail strip)
+
+### Phase 2 — FastAPI Backend + YOLOv8 Inference
+- [ ] `/infer` endpoint: accept image → return boxes + labels + scores
+- [ ] YOLOv8 pretrained COCO weights (80 classes)
+- [ ] Response format: `[{x, y, w, h, class, confidence}]`
+- [ ] Support: JPG, PNG, WebP
+- [ ] Batch inference endpoint for folder uploads
+
+### Phase 3 — Confidence Threshold + IoU Sliders
+- [ ] Confidence slider: filter displayed boxes in real-time (React state)
+- [ ] IoU slider: client-side NMS to suppress overlapping boxes
+- [ ] Class visibility toggles
+- [ ] "Accept all above threshold" button
+- [ ] Undo/redo stack for box edits
+
+### Phase 4 — Export Pipeline
+- [ ] YOLO `.txt` export (normalized `class cx cy w h` format)
+- [ ] COCO JSON export (full annotation schema)
+- [ ] Pascal VOC XML export
+- [ ] ZIP download of all annotations + images
+- [ ] Split options: train/val/test (70/20/10)
+
+### Phase 5 — Dataset Stats Dashboard + Batch Upload
+- [ ] Class distribution bar chart
+- [ ] Annotated vs pending image counter
+- [ ] Images per class table
+- [ ] Drag-and-drop folder upload
+- [ ] Progress bar for batch inference
+- [ ] Custom class list (upload your own instead of COCO defaults)
+
+---
+
+## Getting Started
+
+```bash
+# Backend
+cd backend
+pip install fastapi uvicorn ultralytics pillow
+uvicorn main:app --reload
+
+# Frontend
+cd frontend
+npm install
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173).
+
+---
+
+> Built by [Talha Tursun](https://github.com/tursuntalha) · Making dataset creation as fast as model training.
